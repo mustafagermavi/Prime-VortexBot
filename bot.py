@@ -8,15 +8,20 @@ CHAT_ID = "8142540785"
 def send_telegram_msg(message):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
-    requests.post(url, json=payload)
+    try:
+        requests.post(url, json=payload)
+    except Exception as e:
+        print(f"Error: {e}")
 
 def get_signal():
-    exchange = ccxt.binance()
+    # ل ڤێرە مە بۆرسە گوهۆڕی بۆ KuCoin دا کو کێشە نەمینیت
+    exchange = ccxt.kucoin() 
     symbol = 'BTC/USDT'
+    
     ticker = exchange.fetch_ticker(symbol)
     price = ticker['last']
     
-    msg = f"🚀 *سیگناڵا کریپتۆ یا ئۆتۆماتیکی*\n\n💎 دراڤ: `{symbol}`\n💰 بها: `${price}`\n\n✅ پڕۆژە ب سەرکەفتیانە کار دکەت!"
+    msg = f"🚀 *سیگناڵا کریپتۆ یا ئۆتۆماتیکی*\n\n💎 دراڤ: `{symbol}`\n💰 بها ل KuCoin: `${price}`\n\n✅ نوکە پڕۆژە ل سەر سێرڤەرێن جیهانی کار دکەت!"
     send_telegram_msg(msg)
 
 if __name__ == "__main__":
