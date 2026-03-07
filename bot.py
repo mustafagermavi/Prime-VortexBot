@@ -1,25 +1,23 @@
-name: Crypto Bot Auto Run
+import ccxt
+import requests
 
-on:
-  schedule:
-    - cron: '*/30 * * * *'  # هەر ٣٠ خۆلەکان جارەکێ کار دکەت
-  workflow_dispatch:        # دا تو ب دەستێ خۆ ژی بشێی "Run" بکەی
+# زانیاریێن تە
+TOKEN = "8652574111:AAEAtgw9G-n5489pe0CST83bImdNK3fPs_c"
+CHAT_ID = "8142540785"
 
-jobs:
-  run-bot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+def send_telegram_msg(message):
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
+    requests.post(url, json=payload)
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+def get_signal():
+    exchange = ccxt.binance()
+    symbol = 'BTC/USDT'
+    ticker = exchange.fetch_ticker(symbol)
+    price = ticker['last']
+    
+    msg = f"🚀 *سیگناڵا کریپتۆ یا ئۆتۆماتیکی*\n\n💎 دراڤ: `{symbol}`\n💰 بها: `${price}`\n\n✅ پڕۆژە ب سەرکەفتیانە کار دکەت!"
+    send_telegram_msg(msg)
 
-      - name: Install dependencies
-        run: |
-          pip install ccxt requests
-
-      - name: Run Python Script
-        run: python bot.py
+if __name__ == "__main__":
+    get_signal()
