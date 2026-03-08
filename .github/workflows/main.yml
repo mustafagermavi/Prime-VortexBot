@@ -1,32 +1,23 @@
-name: PrimeVortexBot
+name: PrimeVortexAuto
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
-  workflow_dispatch:
+    - cron: '*/15 * * * *' # ئۆتۆماتیکی هەر ١٥ خۆلەکان
+  workflow_dispatch: # بۆ تاقیکرنا ب دەست
 
 jobs:
-  run-bot:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout Code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: 🐍 Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: 🛠️ Setup & Run (Professional Method)
+      - name: Install & Run
         run: |
-          # 1. Update pip
-          python -m pip install --upgrade pip
-          
-          # 2. Install everything directly (Safer than -r requirements.txt)
           pip install pandas pandas-ta ccxt requests
-          
-          # 3. List files to make sure bot.py is there (Debugging)
-          ls -R
-          
-          # 4. Run the bot
           python bot.py
