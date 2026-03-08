@@ -4,43 +4,33 @@ import pandas as pd
 import pandas_ta as ta
 import time
 
-# --- Config ---
 TOKEN = "8652574111:AAEAtgw9G-n5489pe0CST83bImdNK3fPs_c"
 CHANNEL_ID = "@PrimeVortexsignals"
 
-SYMBOLS = [
-    'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'XRP/USDT', 'ADA/USDT', 'AVAX/USDT',
-    'DOT/USDT', 'LINK/USDT', 'MATIC/USDT', 'PEPE/USDT', 'SHIB/USDT', 'DOGE/USDT'
-]
+# 50 Top Coins
+SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'XRP/USDT', 'ADA/USDT', 'AVAX/USDT', 'DOT/USDT', 'PEPE/USDT', 'DOGE/USDT', 'SHIB/USDT', 'NEAR/USDT', 'LINK/USDT']
 
-def send_msg(message):
+def send_msg(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": CHANNEL_ID, "text": message, "parse_mode": "Markdown"}
-    requests.post(url, json=payload)
+    requests.post(url, json={"chat_id": CHANNEL_ID, "text": text, "parse_mode": "Markdown"})
 
-def scan(symbol, tf):
+def check_market(symbol, tf):
     try:
         ex = ccxt.kucoin()
         bars = ex.fetch_ohlcv(symbol, timeframe=tf, limit=100)
         df = pd.DataFrame(bars, columns=['ts', 'o', 'h', 'l', 'c', 'v'])
         df['RSI'] = ta.rsi(df['c'], length=14)
-        df['EMA'] = ta.ema(df['c'], length=50)
-        
-        rsi, price, ema = df['RSI'].iloc[-1], df['c'].iloc[-1], df['EMA'].iloc[-1]
+        rsi = df['RSI'].iloc[-1]
+        price = df['c'].iloc[-1]
 
         if rsi < 38:
-            msg = (
-                f"🌟 *SIGNAL: {symbol}* ({tf})\n"
-                f"📍 ENTRY: `{round(price, 5)}` | RSI: `{round(rsi, 2)}`\n"
-                f"🎯 TP1: `{round(price * 1.01, 5)}` | SL: `{round(price * 0.97, 5)}`"
-            )
+            msg = f"🚀 *SIGNAL ({tf}): {symbol}*\n📍 Entry: `{price}`\n📊 RSI: `{round(rsi, 2)}`"
             send_msg(msg)
-            return True
-    except: return False
+    except: pass
 
 if __name__ == "__main__":
-    send_msg("🕵️ *Prime Vortex:* Scanning 15m & 1h...")
+    send_msg("🕵️ *Prime Vortex:* Scanning Market (15m/1h)...")
     for tf in ['15m', '1h']:
         for s in SYMBOLS:
-            scan(s, tf)
-            time.sleep(0.1)
+            check_market(s, tf)
+            time.sleep(0.5)
