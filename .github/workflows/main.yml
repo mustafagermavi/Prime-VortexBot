@@ -16,9 +16,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip' # ئەڤە دێ لایبرەریان "کاش" کەت دا ئیرۆر نەمینیت
 
-      - name: 🚀 Install and Run (All in One)
+      - name: 📦 Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas pandas-ta ccxt requests
-          python bot.py
+          pip install -r requirements.txt
+
+      - name: 🚀 Run Trading Bot
+        run: python bot.py
