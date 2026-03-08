@@ -1,25 +1,19 @@
-name: Crypto Bot Auto Run
-
+name: PrimeVortexBot
 on:
   schedule:
-    - cron: '*/30 * * * *'  # هەر ٣٠ خۆلەکان جارەکێ کار دکەت
-  workflow_dispatch:        # دا تو ب دەستێ خۆ ژی بشێی "Run" بکەی
-
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 jobs:
-  run-bot:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
       - name: Install dependencies
-        run: |
-          pip install ccxt requests
-
-      - name: Run Python Script
+        run: pip install -r requirements.txt
+      - name: Run Bot
         run: python bot.py
