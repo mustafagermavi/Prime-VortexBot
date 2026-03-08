@@ -16,12 +16,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          cache: 'pip' # ئەڤە دێ لایبرەریان "کاش" کەت دا ئیرۆر نەمینیت
 
-      - name: 📦 Install Dependencies
+      - name: 🛠️ Setup & Run (Professional Method)
         run: |
+          # 1. Update pip
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 🚀 Run Trading Bot
-        run: python bot.py
+          
+          # 2. Install everything directly (Safer than -r requirements.txt)
+          pip install pandas pandas-ta ccxt requests
+          
+          # 3. List files to make sure bot.py is there (Debugging)
+          ls -R
+          
+          # 4. Run the bot
+          python bot.py
