@@ -5,7 +5,8 @@ import pandas_ta as ta
 
 # --- Configuration ---
 TOKEN = "8652574111:AAEAtgw9G-n5489pe0CST83bImdNK3fPs_c"
-CHAT_ID = "8142540785"
+# گۆڕدرا بۆ ناونیشانی چەناڵەکەت
+CHANNEL_ID = "@PrimeVortexsignals" 
 
 SYMBOLS = [
     'BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'XRP/USDT', 'ADA/USDT', 'AVAX/USDT', 'DOT/USDT',
@@ -19,13 +20,16 @@ SYMBOLS = [
 
 def send_telegram_msg(message):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
-    requests.post(url, json=payload)
+    payload = {"chat_id": CHANNEL_ID, "text": message, "parse_mode": "Markdown"}
+    try:
+        requests.post(url, json=payload)
+    except Exception as e:
+        print(f"Error sending message: {e}")
 
 def get_fast_signal(symbol):
     try:
         exchange = ccxt.kucoin()
-        # Switching to 15-minute candles
+        # Fetching 15-minute timeframe for active signals
         bars = exchange.fetch_ohlcv(symbol, timeframe='15m', limit=100)
         df = pd.DataFrame(bars, columns=['ts', 'open', 'high', 'low', 'close', 'vol'])
         
@@ -36,22 +40,24 @@ def get_fast_signal(symbol):
         current_price = df['close'].iloc[-1]
         ema_50 = df['EMA_50'].iloc[-1]
         
-        # --- Logic: Better chance to find signals in 15m ---
+        # Logic: 15M Scalp Signal
         if last_rsi < 38:
             entry = current_price
-            strength = "🔥 STRONG" if current_price > ema_50 else "⚠️ RECOVERY"
+            trend_status = "STRENGTH: 🔥 HIGH" if current_price > ema_50 else "STRENGTH: ⚠️ MEDIUM"
             
             msg = (
-                f"⚡ *15M SIGNAL: {symbol}* ⚡\n"
+                f"⚡ *NEW SCALP SIGNAL: {symbol}* ⚡\n"
                 f"━━━━━━━━━━━━━━━\n"
                 f"📍 *ENTRY:* `{round(entry, 5)}`\n"
                 f"📊 *RSI:* `{round(last_rsi, 2)}`\n"
-                f"💪 *POWER:* `{strength}`\n"
+                f"💪 *{trend_status}*\n"
                 f"━━━━━━━━━━━━━━━\n"
                 f"🎯 TP1: `{round(entry * 1.008, 5)}` (Scalp)\n"
                 f"🎯 TP2: `{round(entry * 1.015, 5)}` (Standard)\n"
-                f"🎯 TP3: `{round(entry * 1.03, 5)}` (Swing)\n"
-                f"🚫 SL: `{round(entry * 0.97, 5)}` (-3%)\n"
+                f"🎯 TP3: `{round(entry * 1.03, 5)}` (Swing)\n\n"
+                f"🚫 STOP LOSS: `{round(entry * 0.97, 5)}` (-3%)\n"
+                f"━━━━━━━━━━━━━━━\n"
+                f"📢 Join: @PrimeVortexsignals"
             )
             send_telegram_msg(msg)
             return True
@@ -59,14 +65,12 @@ def get_fast_signal(symbol):
         return False
 
 if __name__ == "__main__":
-    send_telegram_msg("🕵️ *Prime Vortex:* Running 15m Scalp Scan on 50 Assets...")
+    # Notification that the scanner is running
+    print("Scanner is checking the market...")
     
-    count = 0
+    found_signals = 0
     for s in SYMBOLS:
         if get_fast_signal(s):
-            count += 1
-    
-    if count == 0:
-        send_telegram_msg("😴 *Market Update:* No clear entry points found in the last 15m.")
-    else:
-        send_telegram_msg(f"✅ *Scan Finished:* Found `{count}` signals.")
+            found_signals += 1
+            
+    print(f"Scan finished. Found {found_signals} signals.")
