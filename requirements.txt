@@ -1,4 +1,4 @@
-ccxt
+python-telegram-bot
 pandas
-pandas-ta
+pandas_ta
 requests
